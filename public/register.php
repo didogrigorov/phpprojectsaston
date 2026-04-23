@@ -1,0 +1,110 @@
+<?php
+declare(strict_types=1);
+
+require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/../includes/db.php';
+require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../includes/csrf.php';
+
+$pdo = getPDO();
+$errors = [];
+
+if (isPostRequest()) {
+    $username = normalizeString($_POST['username'] ?? '');
+    $email = normalizeString($_POST['email'] ?? '');
+    $password = $_POST['password'] ?? '';
+    $confirmPassword = $_POST['confirm_password'] ?? '';
+    $csrfToken = $_POST['csrf_token'] ?? null;
+
+    if (!verifyCsrfToken($csrfToken)) {
+        $errors[] = 'Invalid CSRF token.';
+    }
+
+    if ($username === '' || strlen($username) < 3 || strlen($username) > 50) {
+        $errors[] = 'Username must be between 3 and 50 characters.';
+    }
+
+    if (!validateEmail($email)) {
+        $errors[] = 'Please enter a valid email address.';
+    }
+
+    if (strlen($password) < 8) {
+        $errors[] = 'Password must be at least 8 characters long.';
+    }
+
+    if (!preg_match('/[A-Z]/', $password) || !preg_match('/[0-9]/', $password)) {
+        $errors[] = 'Password must include at least one uppercase letter and one number.';
+    }
+
+    if ($password !== $confirmPassword) {
+        $errors[] = 'Passwords do not match.';
+    }
+
+    if (!$errors) {
+        $checkStmt = $pdo->prepare("SELECT uid FROM users WHERE username = :username OR email = :email LIMIT 1");
+        $checkStmt->execute([
+            'username' => $username,
+            'email' => $email
+        ]);
+
+        if ($checkStmt->fetch()) {
+            $errors[] = 'Username or email already exists.';
+        }
+    }
+
+    if (!$errors) {
+        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+
+        $insertStmt = $pdo->prepare("
+            INSERT INTO users (username, password, email)
+            VALUES (:username, :password, :email)
+        ");
+
+        $insertStmt->execute([
+            'username' => $username,
+            'password' => $hashedPassword,
+            'email' => $email
+        ]);
+
+        setFlash('success', 'Registration successful. You can now log in.');
+        redirect('login.php');
+    }
+}
+
+require_once __DIR__ . '/../includes/header.php';
+?>
+
+<div class="card form-card">
+    <h1>Register</h1>
+
+    <?php renderErrorList($errors); ?>
+
+    <form id="register-form" method="POST" action="register.php" novalidate>
+        <?= csrfField() ?>
+
+        <div class="form-group">
+            <label for="username">Username</label>
+            <input id="username" name="username" type="text" required maxlength="50" value="<?= e(old('username')) ?>">
+        </div>
+
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input id="email" name="email" type="email" required maxlength="100" value="<?= e(old('email')) ?>">
+        </div>
+
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input id="password" name="password" type="password" required minlength="8">
+            <p class="small-text">Use at least 8 characters, including one uppercase letter and one number.</p>
+        </div>
+
+        <div class="form-group">
+            <label for="confirm_password">Confirm Password</label>
+            <input id="confirm_password" name="confirm_password" type="password" required minlength="8">
+        </div>
+
+        <button type="submit">Create Account</button>
+    </form>
+</div>
+
+<?php require_once __DIR__ . '/../includes/footer.php'; ?>

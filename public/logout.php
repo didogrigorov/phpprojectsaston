@@ -18,5 +18,5 @@ if (!verifyCsrfToken($csrfToken)) {
 }
 
 logoutUser();
-setFlash('success', 'You have been logged out.');
+setFlash('success', 'You have been logged out successfully.');
 redirect('login.php');

@@ -41,7 +41,12 @@ if (isPostRequest()) {
     }
 
     if (!$errors) {
-        $checkStmt = $pdo->prepare("SELECT uid FROM users WHERE username = :username OR email = :email LIMIT 1");
+        $checkStmt = $pdo->prepare("
+            SELECT uid
+            FROM users
+            WHERE username = :username OR email = :email
+            LIMIT 1
+        ");
         $checkStmt->execute([
             'username' => $username,
             'email' => $email
@@ -84,26 +89,59 @@ require_once __DIR__ . '/../includes/header.php';
 
         <div class="form-group">
             <label for="username">Username</label>
-            <input id="username" name="username" type="text" required maxlength="50" value="<?= e(old('username')) ?>">
+            <input
+                id="username"
+                name="username"
+                type="text"
+                required
+                maxlength="50"
+                autocomplete="username"
+                value="<?= e(old('username')) ?>"
+            >
         </div>
 
         <div class="form-group">
             <label for="email">Email</label>
-            <input id="email" name="email" type="email" required maxlength="100" value="<?= e(old('email')) ?>">
+            <input
+                id="email"
+                name="email"
+                type="email"
+                required
+                maxlength="100"
+                autocomplete="email"
+                value="<?= e(old('email')) ?>"
+            >
         </div>
 
         <div class="form-group">
             <label for="password">Password</label>
-            <input id="password" name="password" type="password" required minlength="8">
+            <input
+                id="password"
+                name="password"
+                type="password"
+                required
+                minlength="8"
+                autocomplete="new-password"
+            >
             <p class="small-text">Use at least 8 characters, including one uppercase letter and one number.</p>
         </div>
 
         <div class="form-group">
             <label for="confirm_password">Confirm Password</label>
-            <input id="confirm_password" name="confirm_password" type="password" required minlength="8">
+            <input
+                id="confirm_password"
+                name="confirm_password"
+                type="password"
+                required
+                minlength="8"
+                autocomplete="new-password"
+            >
         </div>
 
-        <button type="submit">Create Account</button>
+        <div class="actions">
+            <button type="submit">Create Account</button>
+            <a class="btn btn-secondary" href="login.php">Back to Login</a>
+        </div>
     </form>
 </div>
 

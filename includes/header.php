@@ -26,6 +26,7 @@ $flash = getFlash();
 
             <?php if (isLoggedIn()): ?>
                 <a class="<?= isActivePage(['dashboard.php']) ? 'active' : '' ?>" href="dashboard.php">Dashboard</a>
+                <a class="<?= isActivePage(['profile.php']) ? 'active' : '' ?>" href="profile.php">Profile</a>
                 <a class="<?= isActivePage(['add_project.php']) ? 'active' : '' ?>" href="add_project.php">Add Project</a>
 
                 <form class="logout-form" method="POST" action="logout.php">
@@ -42,7 +43,7 @@ $flash = getFlash();
 
 <main class="container main-content">
     <?php if ($flash): ?>
-        <div class="alert alert-<?= e($flash['type']) ?>">
+        <div class="alert alert-<?= e($flash['type']) ?>" role="alert">
             <?= e($flash['message']) ?>
         </div>
     <?php endif; ?>

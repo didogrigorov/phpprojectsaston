@@ -1,9 +1,10 @@
-    </main>
+</main>
 
-    <footer class="site-footer">
-        <div class="container">
-            <p>&copy; <?= date('Y') ?> <?= e(APP_NAME) ?>. All rights reserved.</p>
-        </div>
-    </footer>
+<footer class="site-footer">
+    <div class="container">
+        <p>&copy; <?= date('Y') ?> Software Project Manager</p>
+    </div>
+</footer>
+
 </body>
 </html>

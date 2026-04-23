@@ -12,13 +12,39 @@ requireLogin();
 $pdo = getPDO();
 $userId = currentUserId();
 
+$sort = $_GET['sort'] ?? 'start_desc';
+
+$sortOptions = [
+    'start_desc' => 'start_date DESC, pid DESC',
+    'start_asc'  => 'start_date ASC, pid ASC',
+    'title_asc'  => 'title ASC, pid ASC',
+    'title_desc' => 'title DESC, pid DESC'
+];
+
+$orderBy = $sortOptions[$sort] ?? $sortOptions['start_desc'];
+
+$countStmt = $pdo->prepare("
+    SELECT COUNT(*)
+    FROM projects
+    WHERE uid = :uid
+");
+$countStmt->execute(['uid' => $userId]);
+$totalProjects = (int) $countStmt->fetchColumn();
+
+$pagination = paginate($totalProjects, 5);
+
 $stmt = $pdo->prepare("
     SELECT pid, title, start_date, end_date, phase
     FROM projects
     WHERE uid = :uid
-    ORDER BY start_date DESC, pid DESC
+    ORDER BY {$orderBy}
+    LIMIT :limit OFFSET :offset
 ");
-$stmt->execute(['uid' => $userId]);
+$stmt->bindValue(':uid', $userId, PDO::PARAM_INT);
+$stmt->bindValue(':limit', $pagination['per_page'], PDO::PARAM_INT);
+$stmt->bindValue(':offset', $pagination['offset'], PDO::PARAM_INT);
+$stmt->execute();
+
 $projects = $stmt->fetchAll();
 
 require_once __DIR__ . '/../includes/header.php';
@@ -27,13 +53,33 @@ require_once __DIR__ . '/../includes/header.php';
 <div class="card hero-card">
     <h1>Dashboard</h1>
     <p>Welcome, <strong><?= e((string) currentUsername()) ?></strong>.</p>
-    <p class="small-text">You can only manage your own projects.</p>
+    <p class="small-text">You can view and manage only the projects that belong to your account.</p>
 </div>
 
 <div class="card">
     <div class="actions">
         <a class="btn" href="add_project.php">Add New Project</a>
+        <a class="btn btn-secondary" href="profile.php">View Profile</a>
     </div>
+</div>
+
+<div class="card">
+    <form method="GET" action="dashboard.php" class="search-bar">
+        <div class="form-group">
+            <label for="sort">Sort My Projects</label>
+            <select name="sort" id="sort">
+                <option value="start_desc" <?= $sort === 'start_desc' ? 'selected' : '' ?>>Newest First</option>
+                <option value="start_asc" <?= $sort === 'start_asc' ? 'selected' : '' ?>>Oldest First</option>
+                <option value="title_asc" <?= $sort === 'title_asc' ? 'selected' : '' ?>>Title A-Z</option>
+                <option value="title_desc" <?= $sort === 'title_desc' ? 'selected' : '' ?>>Title Z-A</option>
+            </select>
+        </div>
+
+        <div class="form-group sort-button-wrap">
+            <label class="visually-hidden" for="dashboard-sort-submit">Apply sort</label>
+            <button id="dashboard-sort-submit" type="submit">Apply Sorting</button>
+        </div>
+    </form>
 </div>
 
 <div class="card">
@@ -59,7 +105,11 @@ require_once __DIR__ . '/../includes/header.php';
                             <td><?= e($project['title']) ?></td>
                             <td><?= e($project['start_date']) ?></td>
                             <td><?= e($project['end_date'] ?? 'Not set') ?></td>
-                            <td><span class="badge badge-<?= e($project['phase']) ?>"><?= e(phaseLabel($project['phase'])) ?></span></td>
+                            <td>
+                                <span class="badge badge-<?= e($project['phase']) ?>">
+                                    <?= e(phaseLabel($project['phase'])) ?>
+                                </span>
+                            </td>
                             <td>
                                 <div class="actions">
                                     <a class="btn btn-secondary btn-sm" href="edit_project.php?id=<?= (int) $project['pid'] ?>">Edit</a>
@@ -75,6 +125,22 @@ require_once __DIR__ . '/../includes/header.php';
                 </tbody>
             </table>
         </div>
+
+        <?php if ($pagination['total_pages'] > 1): ?>
+            <nav class="pagination" aria-label="Dashboard project pages">
+                <?php for ($i = 1; $i <= $pagination['total_pages']; $i++): ?>
+                    <a
+                        class="page-link <?= $i === $pagination['page'] ? 'current' : '' ?>"
+                        href="?<?= e(buildQueryString([
+                            'page' => $i,
+                            'sort' => $sort
+                        ])) ?>"
+                    >
+                        <?= $i ?>
+                    </a>
+                <?php endfor; ?>
+            </nav>
+        <?php endif; ?>
     <?php endif; ?>
 </div>
 

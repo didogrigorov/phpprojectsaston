@@ -54,7 +54,31 @@ document.addEventListener('DOMContentLoaded', function () {
             if (description.length < 10) {
                 alert('Description must be at least 10 characters.');
                 event.preventDefault();
+                return;
             }
         });
+    }
+
+    document.querySelectorAll('form').forEach(form => {
+        form.addEventListener('submit', function () {
+            const submitButton = form.querySelector('button[type="submit"]');
+
+            if (submitButton) {
+                submitButton.disabled = true;
+                submitButton.dataset.originalText = submitButton.innerText;
+                submitButton.innerText = 'Processing...';
+                submitButton.classList.add('is-loading');
+            }
+        });
+    });
+
+    const alerts = document.querySelectorAll('.alert');
+
+    if (alerts.length > 0) {
+        setTimeout(() => {
+            alerts.forEach(alert => {
+                alert.classList.add('alert-hide');
+            });
+        }, 3500);
     }
 });

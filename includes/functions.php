@@ -137,6 +137,7 @@ function paginate(int $totalItems, int $perPage = 5): array
     $page = $page && $page > 0 ? $page : 1;
 
     $totalPages = max(1, (int) ceil($totalItems / $perPage));
+
     if ($page > $totalPages) {
         $page = $totalPages;
     }
@@ -153,5 +154,10 @@ function paginate(int $totalItems, int $perPage = 5): array
 
 function buildQueryString(array $params): string
 {
-    return http_build_query(array_filter($params, static fn($value) => $value !== '' && $value !== null));
+    return http_build_query(
+        array_filter(
+            $params,
+            static fn($value) => $value !== '' && $value !== null
+        )
+    );
 }

@@ -18,7 +18,12 @@ if (!$projectId) {
     redirect('dashboard.php');
 }
 
-$stmt = $pdo->prepare("SELECT * FROM projects WHERE pid = :pid AND uid = :uid LIMIT 1");
+$stmt = $pdo->prepare("
+    SELECT *
+    FROM projects
+    WHERE pid = :pid AND uid = :uid
+    LIMIT 1
+");
 $stmt->execute([
     'pid' => $projectId,
     'uid' => currentUserId()
@@ -114,18 +119,36 @@ require_once __DIR__ . '/../includes/header.php';
 
         <div class="form-group">
             <label for="title">Project Title</label>
-            <input id="title" name="title" type="text" required maxlength="150" value="<?= e($project['title']) ?>">
+            <input
+                id="title"
+                name="title"
+                type="text"
+                required
+                maxlength="150"
+                value="<?= e($project['title']) ?>"
+            >
         </div>
 
         <div class="grid grid-2">
             <div class="form-group">
                 <label for="start_date">Start Date</label>
-                <input id="start_date" name="start_date" type="date" required value="<?= e($project['start_date']) ?>">
+                <input
+                    id="start_date"
+                    name="start_date"
+                    type="date"
+                    required
+                    value="<?= e($project['start_date']) ?>"
+                >
             </div>
 
             <div class="form-group">
                 <label for="end_date">End Date</label>
-                <input id="end_date" name="end_date" type="date" value="<?= e($project['end_date'] ?? '') ?>">
+                <input
+                    id="end_date"
+                    name="end_date"
+                    type="date"
+                    value="<?= e($project['end_date'] ?? '') ?>"
+                >
             </div>
         </div>
 
@@ -143,7 +166,11 @@ require_once __DIR__ . '/../includes/header.php';
 
         <div class="form-group">
             <label for="short_description">Short Description</label>
-            <textarea id="short_description" name="short_description" required><?= e($project['short_description']) ?></textarea>
+            <textarea
+                id="short_description"
+                name="short_description"
+                required
+            ><?= e($project['short_description']) ?></textarea>
         </div>
 
         <div class="actions">

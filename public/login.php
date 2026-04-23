@@ -28,7 +28,12 @@ if (isPostRequest()) {
     }
 
     if (!$errors) {
-        $stmt = $pdo->prepare("SELECT uid, username, password, email FROM users WHERE username = :username LIMIT 1");
+        $stmt = $pdo->prepare("
+            SELECT uid, username, password, email
+            FROM users
+            WHERE username = :username
+            LIMIT 1
+        ");
         $stmt->execute(['username' => $username]);
         $user = $stmt->fetch();
 
@@ -37,11 +42,18 @@ if (isPostRequest()) {
         } else {
             if (password_needs_rehash($user['password'], PASSWORD_DEFAULT)) {
                 $newHash = password_hash($password, PASSWORD_DEFAULT);
-                $updateStmt = $pdo->prepare("UPDATE users SET password = :password WHERE uid = :uid");
+
+                $updateStmt = $pdo->prepare("
+                    UPDATE users
+                    SET password = :password
+                    WHERE uid = :uid
+                ");
                 $updateStmt->execute([
                     'password' => $newHash,
                     'uid' => $user['uid']
                 ]);
+
+                $user['password'] = $newHash;
             }
 
             loginUser($user);
@@ -64,15 +76,31 @@ require_once __DIR__ . '/../includes/header.php';
 
         <div class="form-group">
             <label for="username">Username</label>
-            <input id="username" name="username" type="text" required value="<?= e(old('username')) ?>">
+            <input
+                id="username"
+                name="username"
+                type="text"
+                required
+                autocomplete="username"
+                value="<?= e(old('username')) ?>"
+            >
         </div>
 
         <div class="form-group">
             <label for="password">Password</label>
-            <input id="password" name="password" type="password" required>
+            <input
+                id="password"
+                name="password"
+                type="password"
+                required
+                autocomplete="current-password"
+            >
         </div>
 
-        <button type="submit">Login</button>
+        <div class="actions">
+            <button type="submit">Login</button>
+            <a class="btn btn-secondary" href="register.php">Create Account</a>
+        </div>
     </form>
 </div>
 

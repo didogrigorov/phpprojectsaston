@@ -6,7 +6,7 @@ require_once __DIR__ . '/functions.php';
 function requireLogin(): void
 {
     if (!isLoggedIn()) {
-        setFlash('error', 'You must be logged in to access that page.');
+        setFlash('error', 'You must be logged in.');
         redirect('login.php');
     }
 }
@@ -16,7 +16,7 @@ function loginUser(array $user): void
     session_regenerate_id(true);
 
     $_SESSION['user'] = [
-        'uid' => (int) $user['uid'],
+        'uid' => (int)$user['uid'],
         'username' => $user['username'],
         'email' => $user['email']
     ];

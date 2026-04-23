@@ -2,9 +2,8 @@
 
 <footer class="site-footer">
     <div class="container">
-        <p>&copy; <?= date('Y') ?> Software Project Manager</p>
+        <p>&copy; <?= date('Y') ?> <?= e(APP_NAME) ?></p>
     </div>
 </footer>
-
 </body>
 </html>

@@ -28,12 +28,8 @@ if (isPostRequest()) {
         $errors[] = 'Please enter a valid email address.';
     }
 
-    if (strlen($password) < 8) {
-        $errors[] = 'Password must be at least 8 characters long.';
-    }
-
-    if (!preg_match('/[A-Z]/', $password) || !preg_match('/[0-9]/', $password)) {
-        $errors[] = 'Password must include at least one uppercase letter and one number.';
+    if (strlen($password) < 8 || !preg_match('/[A-Z]/', $password) || !preg_match('/[0-9]/', $password)) {
+        $errors[] = 'Password must be at least 8 characters and include one uppercase letter and one number.';
     }
 
     if ($password !== $confirmPassword) {
@@ -41,16 +37,8 @@ if (isPostRequest()) {
     }
 
     if (!$errors) {
-        $checkStmt = $pdo->prepare("
-            SELECT uid
-            FROM users
-            WHERE username = :username OR email = :email
-            LIMIT 1
-        ");
-        $checkStmt->execute([
-            'username' => $username,
-            'email' => $email
-        ]);
+        $checkStmt = $pdo->prepare("SELECT uid FROM users WHERE username = :username OR email = :email LIMIT 1");
+        $checkStmt->execute(['username' => $username, 'email' => $email]);
 
         if ($checkStmt->fetch()) {
             $errors[] = 'Username or email already exists.';
@@ -58,16 +46,13 @@ if (isPostRequest()) {
     }
 
     if (!$errors) {
-        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-
-        $insertStmt = $pdo->prepare("
-            INSERT INTO users (username, password, email)
-            VALUES (:username, :password, :email)
+        $stmt = $pdo->prepare("
+            INSERT INTO users (username, password, email, role)
+            VALUES (:username, :password, :email, 'user')
         ");
-
-        $insertStmt->execute([
+        $stmt->execute([
             'username' => $username,
-            'password' => $hashedPassword,
+            'password' => password_hash($password, PASSWORD_DEFAULT),
             'email' => $email
         ]);
 
@@ -81,7 +66,6 @@ require_once __DIR__ . '/../includes/header.php';
 
 <div class="card form-card">
     <h1>Register</h1>
-
     <?php renderErrorList($errors); ?>
 
     <form id="register-form" method="POST" action="register.php" novalidate>
@@ -89,53 +73,23 @@ require_once __DIR__ . '/../includes/header.php';
 
         <div class="form-group">
             <label for="username">Username</label>
-            <input
-                id="username"
-                name="username"
-                type="text"
-                required
-                maxlength="50"
-                autocomplete="username"
-                value="<?= e(old('username')) ?>"
-            >
+            <input id="username" name="username" type="text" required maxlength="50" autocomplete="username" value="<?= e(old('username')) ?>">
         </div>
 
         <div class="form-group">
             <label for="email">Email</label>
-            <input
-                id="email"
-                name="email"
-                type="email"
-                required
-                maxlength="100"
-                autocomplete="email"
-                value="<?= e(old('email')) ?>"
-            >
+            <input id="email" name="email" type="email" required maxlength="100" autocomplete="email" value="<?= e(old('email')) ?>">
         </div>
 
         <div class="form-group">
             <label for="password">Password</label>
-            <input
-                id="password"
-                name="password"
-                type="password"
-                required
-                minlength="8"
-                autocomplete="new-password"
-            >
-            <p class="small-text">Use at least 8 characters, including one uppercase letter and one number.</p>
+            <input id="password" name="password" type="password" required minlength="8" autocomplete="new-password">
+            <p class="small-text">At least 8 characters, one uppercase letter, and one number.</p>
         </div>
 
         <div class="form-group">
             <label for="confirm_password">Confirm Password</label>
-            <input
-                id="confirm_password"
-                name="confirm_password"
-                type="password"
-                required
-                minlength="8"
-                autocomplete="new-password"
-            >
+            <input id="confirm_password" name="confirm_password" type="password" required minlength="8" autocomplete="new-password">
         </div>
 
         <div class="actions">

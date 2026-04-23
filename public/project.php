@@ -6,7 +6,6 @@ require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/functions.php';
 
 $pdo = getPDO();
-
 $projectId = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 
 if (!$projectId) {
@@ -14,20 +13,13 @@ if (!$projectId) {
     redirect('index.php');
 }
 
-$sql = "SELECT 
-            p.pid,
-            p.title,
-            p.start_date,
-            p.end_date,
-            p.short_description,
-            p.phase,
-            u.username
-        FROM projects p
-        INNER JOIN users u ON p.uid = u.uid
-        WHERE p.pid = :pid
-        LIMIT 1";
-
-$stmt = $pdo->prepare($sql);
+$stmt = $pdo->prepare("
+    SELECT p.pid, p.title, p.start_date, p.end_date, p.short_description, p.phase, u.username
+    FROM projects p
+    INNER JOIN users u ON p.uid = u.uid
+    WHERE p.pid = :pid
+    LIMIT 1
+");
 $stmt->execute(['pid' => $projectId]);
 $project = $stmt->fetch();
 
@@ -42,9 +34,7 @@ require_once __DIR__ . '/../includes/header.php';
 <div class="card">
     <div class="project-top">
         <h1><?= e($project['title']) ?></h1>
-        <span class="badge badge-<?= e($project['phase']) ?>">
-            <?= e(phaseLabel($project['phase'])) ?>
-        </span>
+        <span class="badge badge-<?= e($project['phase']) ?>"><?= e(phaseLabel($project['phase'])) ?></span>
     </div>
 
     <div class="detail-grid">

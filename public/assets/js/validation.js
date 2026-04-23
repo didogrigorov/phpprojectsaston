@@ -54,7 +54,6 @@ document.addEventListener('DOMContentLoaded', function () {
             if (description.length < 10) {
                 alert('Description must be at least 10 characters.');
                 event.preventDefault();
-                return;
             }
         });
     }

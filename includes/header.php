@@ -26,8 +26,14 @@ $flash = getFlash();
 
             <?php if (isLoggedIn()): ?>
                 <a class="<?= isActivePage(['dashboard.php']) ? 'active' : '' ?>" href="dashboard.php">Dashboard</a>
-                <a class="<?= isActivePage(['profile.php']) ? 'active' : '' ?>" href="profile.php">Profile</a>
+                <a class="<?= isActivePage(['profile.php', 'edit_profile.php']) ? 'active' : '' ?>" href="profile.php">Profile</a>
                 <a class="<?= isActivePage(['add_project.php']) ? 'active' : '' ?>" href="add_project.php">Add Project</a>
+                <a class="<?= isActivePage(['logs.php']) ? 'active' : '' ?>" href="logs.php">Logs</a>
+                <a class="<?= isActivePage(['export_projects.php']) ? 'active' : '' ?>" href="export_projects.php">Export CSV</a>
+
+                <?php if (isAdmin()): ?>
+                    <a class="<?= isActivePage(['admin.php']) ? 'active' : '' ?>" href="admin.php">Admin</a>
+                <?php endif; ?>
 
                 <form class="logout-form" method="POST" action="logout.php">
                     <?= csrfField() ?>

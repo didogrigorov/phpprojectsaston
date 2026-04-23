@@ -10,30 +10,25 @@ require_once __DIR__ . '/../includes/csrf.php';
 requireLogin();
 
 $pdo = getPDO();
-
 $projectId = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 
 if (!$projectId) {
     setFlash('error', 'Invalid project ID.');
-    redirect('dashboard.php');
+    redirect(isAdmin() ? 'admin.php' : 'dashboard.php');
 }
 
-$stmt = $pdo->prepare("
-    SELECT pid, title
-    FROM projects
-    WHERE pid = :pid AND uid = :uid
-    LIMIT 1
-");
-$stmt->execute([
-    'pid' => $projectId,
-    'uid' => currentUserId()
-]);
-
+if (isAdmin()) {
+    $stmt = $pdo->prepare("SELECT pid, title, phase FROM projects WHERE pid = :pid LIMIT 1");
+    $stmt->execute(['pid' => $projectId]);
+} else {
+    $stmt = $pdo->prepare("SELECT pid, title, phase FROM projects WHERE pid = :pid AND uid = :uid LIMIT 1");
+    $stmt->execute(['pid' => $projectId, 'uid' => currentUserId()]);
+}
 $project = $stmt->fetch();
 
 if (!$project) {
     setFlash('error', 'Project not found or access denied.');
-    redirect('dashboard.php');
+    redirect(isAdmin() ? 'admin.php' : 'dashboard.php');
 }
 
 if (isPostRequest()) {
@@ -41,20 +36,26 @@ if (isPostRequest()) {
 
     if (!verifyCsrfToken($csrfToken)) {
         setFlash('error', 'Invalid CSRF token.');
-        redirect('dashboard.php');
+        redirect(isAdmin() ? 'admin.php' : 'dashboard.php');
     }
 
-    $deleteStmt = $pdo->prepare("
-        DELETE FROM projects
-        WHERE pid = :pid AND uid = :uid
-    ");
-    $deleteStmt->execute([
-        'pid' => $projectId,
-        'uid' => currentUserId()
-    ]);
+    $pdo->beginTransaction();
 
-    setFlash('success', 'Project deleted successfully.');
-    redirect('dashboard.php');
+    try {
+        logProjectAction($pdo, $projectId, (int) currentUserId(), 'deleted', $project['phase'], null, 'Project deleted');
+
+        $deleteStmt = $pdo->prepare("DELETE FROM projects WHERE pid = :pid");
+        $deleteStmt->execute(['pid' => $projectId]);
+
+        $pdo->commit();
+
+        setFlash('success', 'Project deleted successfully.');
+        redirect(isAdmin() ? 'admin.php' : 'dashboard.php');
+    } catch (Throwable $e) {
+        $pdo->rollBack();
+        setFlash('error', 'Unable to delete project.');
+        redirect(isAdmin() ? 'admin.php' : 'dashboard.php');
+    }
 }
 
 require_once __DIR__ . '/../includes/header.php';
@@ -62,18 +63,13 @@ require_once __DIR__ . '/../includes/header.php';
 
 <div class="card form-card">
     <h1>Delete Project</h1>
+    <p>Are you sure you want to delete <strong><?= e($project['title']) ?></strong>?</p>
 
-    <p>
-        Are you sure you want to delete:
-        <strong><?= e($project['title']) ?></strong>?
-    </p>
-
-    <form method="POST" action="delete_project.php?id=<?= (int)$projectId ?>">
+    <form method="POST" action="delete_project.php?id=<?= (int) $projectId ?>">
         <?= csrfField() ?>
-
         <div class="actions">
             <button type="submit" class="btn btn-danger">Yes, Delete</button>
-            <a href="dashboard.php" class="btn btn-secondary">Cancel</a>
+            <a href="<?= isAdmin() ? 'admin.php' : 'dashboard.php' ?>" class="btn btn-secondary">Cancel</a>
         </div>
     </form>
 </div>

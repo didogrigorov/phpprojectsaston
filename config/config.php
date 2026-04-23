@@ -10,3 +10,5 @@ define('DB_USER', 'root');
 define('DB_PASS', '');
 
 define('SESSION_NAME', 'spm_session');
+define('LOGIN_MAX_ATTEMPTS', 5);
+define('LOGIN_LOCK_MINUTES', 5);

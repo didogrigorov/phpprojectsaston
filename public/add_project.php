@@ -49,22 +49,34 @@ if (isPostRequest()) {
     }
 
     if (!$errors) {
-        $stmt = $pdo->prepare("
-            INSERT INTO projects (title, start_date, end_date, short_description, phase, uid)
-            VALUES (:title, :start_date, :end_date, :short_description, :phase, :uid)
-        ");
+        $pdo->beginTransaction();
 
-        $stmt->execute([
-            'title' => $title,
-            'start_date' => $startDate,
-            'end_date' => $endDate !== '' ? $endDate : null,
-            'short_description' => $description,
-            'phase' => $phase,
-            'uid' => currentUserId()
-        ]);
+        try {
+            $stmt = $pdo->prepare("
+                INSERT INTO projects (title, start_date, end_date, short_description, phase, uid)
+                VALUES (:title, :start_date, :end_date, :short_description, :phase, :uid)
+            ");
 
-        setFlash('success', 'Project added successfully.');
-        redirect('dashboard.php');
+            $stmt->execute([
+                'title' => $title,
+                'start_date' => $startDate,
+                'end_date' => $endDate !== '' ? $endDate : null,
+                'short_description' => $description,
+                'phase' => $phase,
+                'uid' => currentUserId()
+            ]);
+
+            $projectId = (int) $pdo->lastInsertId();
+            logProjectAction($pdo, $projectId, (int) currentUserId(), 'created', null, $phase, 'Project created');
+
+            $pdo->commit();
+
+            setFlash('success', 'Project added successfully.');
+            redirect('dashboard.php');
+        } catch (Throwable $e) {
+            $pdo->rollBack();
+            $errors[] = 'Unable to add project.';
+        }
     }
 }
 
@@ -73,7 +85,6 @@ require_once __DIR__ . '/../includes/header.php';
 
 <div class="card form-card">
     <h1>Add Project</h1>
-
     <?php renderErrorList($errors); ?>
 
     <form id="project-form" method="POST" action="add_project.php" novalidate>
@@ -81,36 +92,18 @@ require_once __DIR__ . '/../includes/header.php';
 
         <div class="form-group">
             <label for="title">Project Title</label>
-            <input
-                id="title"
-                name="title"
-                type="text"
-                required
-                maxlength="150"
-                value="<?= e(old('title')) ?>"
-            >
+            <input id="title" name="title" type="text" required maxlength="150" value="<?= e(old('title')) ?>">
         </div>
 
         <div class="grid grid-2">
             <div class="form-group">
                 <label for="start_date">Start Date</label>
-                <input
-                    id="start_date"
-                    name="start_date"
-                    type="date"
-                    required
-                    value="<?= e(old('start_date')) ?>"
-                >
+                <input id="start_date" name="start_date" type="date" required value="<?= e(old('start_date')) ?>">
             </div>
 
             <div class="form-group">
                 <label for="end_date">End Date</label>
-                <input
-                    id="end_date"
-                    name="end_date"
-                    type="date"
-                    value="<?= e(old('end_date')) ?>"
-                >
+                <input id="end_date" name="end_date" type="date" value="<?= e(old('end_date')) ?>">
             </div>
         </div>
 
@@ -128,11 +121,7 @@ require_once __DIR__ . '/../includes/header.php';
 
         <div class="form-group">
             <label for="short_description">Short Description</label>
-            <textarea
-                id="short_description"
-                name="short_description"
-                required
-            ><?= e(old('short_description')) ?></textarea>
+            <textarea id="short_description" name="short_description" required><?= e(old('short_description')) ?></textarea>
         </div>
 
         <div class="actions">

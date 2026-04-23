@@ -18,16 +18,13 @@ if (!$projectId) {
     redirect('dashboard.php');
 }
 
-$stmt = $pdo->prepare("
-    SELECT *
-    FROM projects
-    WHERE pid = :pid AND uid = :uid
-    LIMIT 1
-");
-$stmt->execute([
-    'pid' => $projectId,
-    'uid' => currentUserId()
-]);
+if (isAdmin()) {
+    $stmt = $pdo->prepare("SELECT * FROM projects WHERE pid = :pid LIMIT 1");
+    $stmt->execute(['pid' => $projectId]);
+} else {
+    $stmt = $pdo->prepare("SELECT * FROM projects WHERE pid = :pid AND uid = :uid LIMIT 1");
+    $stmt->execute(['pid' => $projectId, 'uid' => currentUserId()]);
+}
 $project = $stmt->fetch();
 
 if (!$project) {
@@ -72,31 +69,48 @@ if (isPostRequest()) {
     }
 
     if (!$errors) {
-        $updateStmt = $pdo->prepare("
-            UPDATE projects
-            SET title = :title,
-                start_date = :start_date,
-                end_date = :end_date,
-                short_description = :short_description,
-                phase = :phase
-            WHERE pid = :pid AND uid = :uid
-        ");
+        $pdo->beginTransaction();
 
-        $updateStmt->execute([
-            'title' => $title,
-            'start_date' => $startDate,
-            'end_date' => $endDate !== '' ? $endDate : null,
-            'short_description' => $description,
-            'phase' => $phase,
-            'pid' => $projectId,
-            'uid' => currentUserId()
-        ]);
+        try {
+            $updateStmt = $pdo->prepare("
+                UPDATE projects
+                SET title = :title,
+                    start_date = :start_date,
+                    end_date = :end_date,
+                    short_description = :short_description,
+                    phase = :phase
+                WHERE pid = :pid
+            ");
 
-        setFlash('success', 'Project updated successfully.');
-        redirect('dashboard.php');
+            $updateStmt->execute([
+                'title' => $title,
+                'start_date' => $startDate,
+                'end_date' => $endDate !== '' ? $endDate : null,
+                'short_description' => $description,
+                'phase' => $phase,
+                'pid' => $projectId
+            ]);
+
+            logProjectAction(
+                $pdo,
+                $projectId,
+                (int) currentUserId(),
+                'updated',
+                $project['phase'],
+                $phase,
+                'Project updated'
+            );
+
+            $pdo->commit();
+
+            setFlash('success', 'Project updated successfully.');
+            redirect(isAdmin() ? 'admin.php' : 'dashboard.php');
+        } catch (Throwable $e) {
+            $pdo->rollBack();
+            $errors[] = 'Unable to update project.';
+        }
     } else {
         $project = [
-            'pid' => $projectId,
             'title' => $title,
             'start_date' => $startDate,
             'end_date' => $endDate,
@@ -111,7 +125,6 @@ require_once __DIR__ . '/../includes/header.php';
 
 <div class="card form-card">
     <h1>Edit Project</h1>
-
     <?php renderErrorList($errors); ?>
 
     <form id="project-form" method="POST" action="edit_project.php?id=<?= (int) $projectId ?>" novalidate>
@@ -119,36 +132,18 @@ require_once __DIR__ . '/../includes/header.php';
 
         <div class="form-group">
             <label for="title">Project Title</label>
-            <input
-                id="title"
-                name="title"
-                type="text"
-                required
-                maxlength="150"
-                value="<?= e($project['title']) ?>"
-            >
+            <input id="title" name="title" type="text" required maxlength="150" value="<?= e($project['title']) ?>">
         </div>
 
         <div class="grid grid-2">
             <div class="form-group">
                 <label for="start_date">Start Date</label>
-                <input
-                    id="start_date"
-                    name="start_date"
-                    type="date"
-                    required
-                    value="<?= e($project['start_date']) ?>"
-                >
+                <input id="start_date" name="start_date" type="date" required value="<?= e($project['start_date']) ?>">
             </div>
 
             <div class="form-group">
                 <label for="end_date">End Date</label>
-                <input
-                    id="end_date"
-                    name="end_date"
-                    type="date"
-                    value="<?= e($project['end_date'] ?? '') ?>"
-                >
+                <input id="end_date" name="end_date" type="date" value="<?= e($project['end_date'] ?? '') ?>">
             </div>
         </div>
 
@@ -166,16 +161,12 @@ require_once __DIR__ . '/../includes/header.php';
 
         <div class="form-group">
             <label for="short_description">Short Description</label>
-            <textarea
-                id="short_description"
-                name="short_description"
-                required
-            ><?= e($project['short_description']) ?></textarea>
+            <textarea id="short_description" name="short_description" required><?= e($project['short_description']) ?></textarea>
         </div>
 
         <div class="actions">
             <button type="submit">Update Project</button>
-            <a class="btn btn-secondary" href="dashboard.php">Cancel</a>
+            <a class="btn btn-secondary" href="<?= isAdmin() ? 'admin.php' : 'dashboard.php' ?>">Cancel</a>
         </div>
     </form>
 </div>

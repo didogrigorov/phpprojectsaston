@@ -11,14 +11,25 @@ function requireLogin(): void
     }
 }
 
+function requireAdmin(): void
+{
+    requireLogin();
+
+    if (!isAdmin()) {
+        setFlash('error', 'Administrator access required.');
+        redirect('dashboard.php');
+    }
+}
+
 function loginUser(array $user): void
 {
     session_regenerate_id(true);
 
     $_SESSION['user'] = [
-        'uid' => (int)$user['uid'],
+        'uid' => (int) $user['uid'],
         'username' => $user['username'],
-        'email' => $user['email']
+        'email' => $user['email'],
+        'role' => $user['role']
     ];
 }
 

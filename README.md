@@ -1,6 +1,6 @@
-# 📁 Project Manager Web Application
+# Project Manager Web Application
 
-## 🧭 Overview
+## Overview
 
 This Project Manager is a lightweight, PHP-based web application designed to help users manage projects efficiently. It provides essential features such as project creation, editing, deletion, user authentication, and dashboard visualization.
 
@@ -91,7 +91,7 @@ project-manager/
 
 ---
 
-## ⚙️ Installation Guide
+## Installation Guide
 
 ### 1. Clone or Download
 
@@ -236,7 +236,7 @@ export_projects.php
 
 ---
 
-## 🔍 Search System
+## Search System
 
 * Keyword-based project search
 * Lightweight filtering logic

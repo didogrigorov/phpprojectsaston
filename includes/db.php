@@ -1,4 +1,8 @@
 <?php
+/**
+ * Database connection helper.
+ * Builds and reuses a single PDO connection configured for exceptions, associative fetch mode, and UTF-8.
+ */
 declare(strict_types=1);
 
 require_once __DIR__ . '/../config/config.php';

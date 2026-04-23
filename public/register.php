@@ -1,4 +1,8 @@
 <?php
+/**
+ * Registration page controller.
+ * Validates the signup form, hashes the password, creates a new user account, and redirects to login on success.
+ */
 declare(strict_types=1);
 
 require_once __DIR__ . '/../config/config.php';

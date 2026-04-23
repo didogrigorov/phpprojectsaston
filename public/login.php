@@ -1,4 +1,8 @@
 <?php
+/**
+ * Login page controller.
+ * Handles CSRF validation, lockout checks, password verification, optional password rehashing, and session login.
+ */
 declare(strict_types=1);
 
 require_once __DIR__ . '/../config/config.php';

@@ -1,4 +1,8 @@
 <?php
+/**
+ * User dashboard page controller.
+ * Shows the signed-in user's projects and quick summary information.
+ */
 declare(strict_types=1);
 
 require_once __DIR__ . '/../config/config.php';

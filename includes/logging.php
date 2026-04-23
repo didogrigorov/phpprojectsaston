@@ -1,4 +1,8 @@
 <?php
+/**
+ * Legacy logging helper.
+ * This file duplicates part of the logging behavior already present in includes/functions.php. The app mainly uses the version from functions.php.
+ */
 declare(strict_types=1);
 
 require_once __DIR__ . '/db.php';

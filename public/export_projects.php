@@ -1,4 +1,8 @@
 <?php
+/**
+ * CSV export controller.
+ * Streams project data as a downloadable CSV file for the current user or for admins, depending on the implemented query.
+ */
 declare(strict_types=1);
 
 require_once __DIR__ . '/../config/config.php';

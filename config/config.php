@@ -1,8 +1,12 @@
 <?php
+/**
+ * Project-wide configuration values.
+ * Keeps app identity, database credentials, session settings, and login throttling values in one place.
+ */
 declare(strict_types=1);
 
 define('APP_NAME', 'Software Project Manager');
-define('APP_URL', 'http://localhost/project-manager/public');
+define('APP_URL', 'https://webdevtests.site/');
 
 define('DB_HOST', 'localhost');
 define('DB_NAME', 'aproject');

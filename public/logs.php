@@ -1,4 +1,8 @@
 <?php
+/**
+ * Activity log page controller.
+ * Admins can review all logs, while regular users see only their own actions.
+ */
 declare(strict_types=1);
 
 require_once __DIR__ . '/../config/config.php';

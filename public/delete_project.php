@@ -1,4 +1,8 @@
 <?php
+/**
+ * Delete-project action controller.
+ * Checks ownership or admin rights, verifies the CSRF token, removes the project, and records the deletion in the log.
+ */
 declare(strict_types=1);
 
 require_once __DIR__ . '/../config/config.php';

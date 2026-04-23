@@ -1,4 +1,8 @@
 <?php
+/**
+ * Profile edit page controller.
+ * Lets the current user update username, email, and optionally password after validating the submitted data.
+ */
 declare(strict_types=1);
 
 require_once __DIR__ . '/../config/config.php';

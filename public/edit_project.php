@@ -1,4 +1,8 @@
 <?php
+/**
+ * Project edit page controller.
+ * Loads a project, checks permission, validates changes, updates the record, and writes phase-change or edit activity logs.
+ */
 declare(strict_types=1);
 
 require_once __DIR__ . '/../config/config.php';

@@ -1,4 +1,8 @@
 <?php
+/**
+ * Single-project details page.
+ * Fetches one project by ID and shows the metadata and description in read-only form.
+ */
 declare(strict_types=1);
 
 require_once __DIR__ . '/../config/config.php';

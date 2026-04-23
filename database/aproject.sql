@@ -1,3 +1,6 @@
+-- Database bootstrap script.
+-- Creates the application schema, tables, indexes, and a small set of seed data for local testing.
+
 CREATE DATABASE IF NOT EXISTS aproject CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE aproject;
 

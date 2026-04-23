@@ -1,4 +1,8 @@
 <?php
+/**
+ * Create-project page controller.
+ * Validates input, inserts a new project, writes an activity log entry, and then redirects the user back to the dashboard.
+ */
 declare(strict_types=1);
 
 require_once __DIR__ . '/../config/config.php';

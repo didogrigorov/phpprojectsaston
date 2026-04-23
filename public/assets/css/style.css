@@ -1,3 +1,8 @@
+/*
+ * Main stylesheet.
+ * Defines the visual system for layout, navigation, cards, forms, tables, badges, alerts, and responsive behavior.
+ */
+
 * { box-sizing: border-box; }
 
 :root {

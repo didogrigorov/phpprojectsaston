@@ -1,4 +1,8 @@
 <?php
+/**
+ * Admin dashboard page controller.
+ * Lists users and projects for administrators and typically centralizes privileged management actions.
+ */
 declare(strict_types=1);
 
 require_once __DIR__ . '/../config/config.php';

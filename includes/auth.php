@@ -1,4 +1,8 @@
 <?php
+/**
+ * Authentication helpers.
+ * Responsible for guarding protected routes, storing the logged-in user in the session, and logging the user out safely.
+ */
 declare(strict_types=1);
 
 require_once __DIR__ . '/functions.php';

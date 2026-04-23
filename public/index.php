@@ -1,4 +1,8 @@
 <?php
+/**
+ * Public project listing page.
+ * Shows all projects with pagination so visitors can browse the catalog without signing in.
+ */
 declare(strict_types=1);
 
 require_once __DIR__ . '/../config/config.php';

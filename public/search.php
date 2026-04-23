@@ -1,4 +1,8 @@
 <?php
+/**
+ * Search and filter page controller.
+ * Builds a safe, parameterized SQL query based on the selected filters and paginates the results.
+ */
 declare(strict_types=1);
 
 require_once __DIR__ . '/../config/config.php';

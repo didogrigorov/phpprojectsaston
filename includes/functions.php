@@ -1,4 +1,8 @@
 <?php
+/**
+ * General utility helpers.
+ * Contains session bootstrapping, response security headers, escaping, flash messages, validation helpers, pagination, and activity logging.
+ */
 declare(strict_types=1);
 
 require_once __DIR__ . '/../config/config.php';

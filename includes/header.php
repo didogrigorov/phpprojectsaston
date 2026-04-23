@@ -1,4 +1,8 @@
 <?php
+/**
+ * Shared page header partial.
+ * Renders the HTML head, top navigation, and any pending flash message for the current request.
+ */
 declare(strict_types=1);
 
 require_once __DIR__ . '/functions.php';

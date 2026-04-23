@@ -1,3 +1,8 @@
+/**
+ * Client-side form enhancements.
+ * Adds lightweight validation for registration and project forms, disables duplicate submissions, and auto-hides alerts.
+ */
+
 document.addEventListener('DOMContentLoaded', function () {
     const registerForm = document.querySelector('#register-form');
     const projectForm = document.querySelector('#project-form');

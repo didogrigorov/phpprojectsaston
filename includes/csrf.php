@@ -1,4 +1,8 @@
 <?php
+/**
+ * CSRF protection helpers.
+ * Generates, prints, and verifies one session-based anti-forgery token used by POST forms.
+ */
 declare(strict_types=1);
 
 require_once __DIR__ . '/functions.php';

@@ -1,4 +1,8 @@
 <?php
+/**
+ * Logout action controller.
+ * Accepts POST only, verifies the CSRF token, clears the session, and redirects the user to the login page.
+ */
 declare(strict_types=1);
 
 require_once __DIR__ . '/../config/config.php';

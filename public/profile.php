@@ -1,4 +1,8 @@
 <?php
+/**
+ * Profile view page controller.
+ * Displays the current user's stored account information.
+ */
 declare(strict_types=1);
 
 require_once __DIR__ . '/../config/config.php';

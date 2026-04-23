@@ -1,3 +1,5 @@
+# Disabled Apache configuration sample.
+
 Options -Indexes
 
 DirectoryIndex public/index.php
